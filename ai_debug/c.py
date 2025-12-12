@@ -1,37 +1,35 @@
 from splitter import split_document 
 from dotenv import load_dotenv
 from vector_embed import create_faiss 
-import os
 from langchain_huggingface import HuggingFaceEmbeddings
+from retreiver import generate_retriever
+from llm import get_llm
 load_dotenv()
 
-
-directory = "C:/Users/MSI GAMING/OneDrive/Desktop/roshan/Project/ai_debug/ai_debug"
-# Split documents in the directory
+directory = "C:/AIDebug/Ai_debug/ai_debug"
 documents = split_document(directory)
 
-
-
-# for doc in documents:
-#     print(doc)
-#     print("-----")
-
-# print(documents[0].page_content)
-# print(documents[0].metadata["source"])
-
-# Initialize HuggingFace Embedding Model
 vectorstore = create_faiss(documents)
 
-results = vectorstore.similarity_search("I want to find the where we generate the documentation", k=2)
-print(results)
+query = input("Enter your query: ")
+
+operation = ["svm"]
+
+docs = ""
+
+for op in operation:
+    retriever = generate_retriever(vectorstore, retriever_type=op)
+
+    m = retriever.invoke(query)
+    for d in m:
+        docs = "".join([d.page_content , "and its location is " , d.metadata["source"] , "\n"])
 
 
+print(type(docs))
+result = get_llm(docs , query)
+
+print("Final Result: ", result)
 # print(vectorstore)
 
 
-# embedding_model = HuggingFaceEmbeddings(
-#     model_name="sentence-transformers/all-MiniLM-L6-v2"
-# )
 
-# # Directory to store Chroma DB
-# CHROMA_PATH = "./chroma_store"
